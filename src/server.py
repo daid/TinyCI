@@ -38,8 +38,10 @@ class TinyCIServer(flask.Flask):
         if config.hook_secret is not None:
             hash_type, hash_value = flask.request.headers.get("X-Hub-Signature").split("=", 1)
             if hash_type != "sha1":
+                log.info("Wrong hash type")
                 flask.abort(400, "Invalid signature")
             if not hmac.compare_digest(hmac.new(config.hook_secret.encode('utf-8'), flask.request.get_data(), hashlib.sha1).hexdigest(), hash_value):
+                log.info("Invalid signature")
                 flask.abort(400, "Invalid signature")
 
         payload = json.loads(flask.request.form["payload"])
