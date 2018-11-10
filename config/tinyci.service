@@ -4,9 +4,9 @@ Requires=tinyci.socket
 Requires=nginx.service
 
 [Service]
-ExecStart=/usr/bin/python3 /usr/share/tinyCI/server.py
+ExecStart=/usr/bin/python3 /usr/share/tinyci/server.py
 Type=simple
-User=tinyCI
+User=tinyci
 # Use our socket as stdin, this is what flipflop expects to use.
 StandardInput=socket
 # When we use a socket as stdin, systemd also wants to set this as stdout. So we need to specify that stdout need to go to the journal.
