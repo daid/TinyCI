@@ -22,11 +22,15 @@ class TinyCIServer(flask.Flask):
     def __init__(self):
         super().__init__("TinyCI")
         
-        self.add_url_rule("/tinyCI/webhook", view_func=self.__webhook, methods=["POST"])
+        self.add_url_rule("/tinyci", view_func=self.__hello, methods=["GET"])
+        self.add_url_rule("/tinyci/webhook", view_func=self.__webhook, methods=["POST"])
         self.__work_queue = queue.Queue()
         self.__latest_sha = {}
         
         threading.Thread(target=self.__worker, daemon=True).start()
+
+    def __hello(self):
+        return flask.Reponse("HELLO")
 
     def __webhook(self):
         event = flask.request.headers.get("X-GitHub-Event")
