@@ -22,7 +22,7 @@ class TinyCIServer(flask.Flask):
     def __init__(self):
         super().__init__("TinyCI")
         
-        self.add_url_rule("/tinyci", view_func=self.__hello, methods=["GET"])
+        self.add_url_rule("/tinyci/", view_func=self.__hello, methods=["GET"])
         self.add_url_rule("/tinyci/webhook", view_func=self.__webhook, methods=["POST"])
         self.__work_queue = queue.Queue()
         self.__latest_sha = {}
