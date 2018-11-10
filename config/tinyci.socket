@@ -1,0 +1,9 @@
+[Unit]
+Description=linking tinyci service to nginx via fastcgi over a unix socket
+PartOf=tinyci.service
+
+[Socket]
+ListenStream=/run/tinyci.socket
+
+[Install]
+WantedBy=sockets.target
