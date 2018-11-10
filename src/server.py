@@ -30,7 +30,7 @@ class TinyCIServer(flask.Flask):
         threading.Thread(target=self.__worker, daemon=True).start()
 
     def __hello(self):
-        return flask.Reponse("HELLO")
+        return flask.Response("HELLO")
 
     def __webhook(self):
         event = flask.request.headers.get("X-GitHub-Event")
