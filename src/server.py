@@ -69,7 +69,7 @@ class TinyCIServer(flask.Flask):
                 if hook["config"]["url"] == config.hook_url:
                     has_hook = True
             if not has_hook:
-                github.addHook(repos, config.hook_url)
+                #github.addHook(repos, config.hook_url)
                 self.__work_queue.put((repos, self.__getLatestSha(repos)))
 
         while True:
