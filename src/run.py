@@ -18,3 +18,4 @@ def cmd(args, *, cwd):
     stdout, stderr = p.communicate()
     if p.wait() != 0:
         raise RunException("[%s] returned [%d]:\n```%s\n%s```" % (" ".join(args), p.returncode, stdout.decode('utf-8', 'replace'), stderr.decode('utf-8', 'replace')))
+    log.info("[%s] returned [%d]", " ".join(args), p.returncode)
