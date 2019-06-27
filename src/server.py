@@ -43,6 +43,8 @@ class TinyCIServer(flask.Flask):
             info = self.__repositories[repos]
             if info.has_config:
                 result += "<div class='infobox status_%s'>%s</div>" % (info.status, repos)
+        result += "<br/><br/>"
+        result += "%s jobs waiting" % (self.__work_queue.qsize())
         result += "</body></html>"
         return flask.Response(result)
 

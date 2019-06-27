@@ -13,7 +13,7 @@ class RunException(Exception):
 
 
 def cmd(args, *, cwd):
-    log.info("Running: %s", " ".join(args))
+    log.info("Running: [%s] at [%s]", " ".join(args), cwd)
     p = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.wait() != 0:
