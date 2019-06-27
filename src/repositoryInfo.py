@@ -3,6 +3,8 @@ import logging
 import os
 
 import github
+import git
+import build
 import config
 
 
