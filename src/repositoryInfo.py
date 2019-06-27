@@ -11,6 +11,7 @@ class RepositoryInfo:
         self.__repos = repos
         self.__work_queue = work_queue
         self.__latest_commit_sha = github.getLatestSha(repos)
+        self.__status = "unknown"
         self.__getConfig()
 
     def __getConfig(self, sha=None):
@@ -24,32 +25,40 @@ class RepositoryInfo:
         self.__last_config = config
         return config
 
+    def __setStatus(self, status: str, sha: str) -> None:
+        github.updateStatus(self.__repos, sha, "success")
+        if self.__latest_commit_sha == sha:
+            self.__status = status
+
     def onNewCommit(self, repos: str, new_sha: str) -> None:
         if repos == self.__repos:
             logging.info("Got commit on %s:%s", self.__repos, new_sha)
+            self.__latest_commit_sha = sha
             config = self.__getConfig(new_sha)
             if config is not None:
-                logging.info("[MAIN] Adding work for %s:%s", repos, sha)
-                github.updateStatus(repos, sha, "pending")
-                self.__work_queue.put((self.build, sha))
-            self.__latest_commit_sha = sha
+                self.triggerBuild("MAIN")
 
         if self.__last_config is not None and self.__last_config.getboolean("repos-%s" % (repos), "required", fallback=False):
-            logging.info("[DEP] Adding work for %s", self.__repos)
-            github.updateStatus(self.__repos, self.__latest_commit_sha, "pending")
-            self.__work_queue.put((self.build, self.__latest_commit_sha))
+            self.triggerBuild("DEB")
+
+    def triggerBuild(self, origin: str) -> None:
+        logging.info("[%s] Adding work for %s", origin, self.__repos)
+        self.__setStatus("pending", self.__latest_commit_sha)
+        self.__work_queue.put((self.build, self.__latest_commit_sha))
 
     def build(self, sha):
         logging.info("Doing work for %s:%s", repos, sha)
         try:
             source_path = os.path.join(config.build_root, self.__repos)
             git.checkout(self.__repos, sha, source_path)
-
             build.make(source_path)
-
-            github.updateStatus(self.__repos, sha, "success")
+            self.__setStatus("success", sha)
         except Exception as e:
             logging.exception("Exception %s while doing work", e)
-            github.updateStatus(self.__repos, sha, "failure")
+            self.__setStatus("failure", sha)
             github.addComment(self.__repos, sha, "### TinyCI build failure:\n%s" % (e))
         logging.info("Finished work for %s:%s", repos, sha)
+
+    @property
+    def status(self):
+        return self.__status
