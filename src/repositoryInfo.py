@@ -36,7 +36,7 @@ class RepositoryInfo:
     def onNewCommit(self, repos: str, new_sha: str) -> None:
         if repos == self.__repos:
             logging.info("Got commit on %s:%s", self.__repos, new_sha)
-            self.__latest_commit_sha = sha
+            self.__latest_commit_sha = new_sha
             config = self.__getConfig(new_sha)
             if config is not None:
                 self.triggerBuild("MAIN")
