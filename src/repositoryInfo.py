@@ -48,7 +48,7 @@ class RepositoryInfo:
         self.__work_queue.put((self.build, self.__latest_commit_sha))
 
     def build(self, sha):
-        logging.info("Doing work for %s:%s", repos, sha)
+        logging.info("Doing work for %s:%s", self.__repos, sha)
         try:
             source_path = os.path.join(config.build_root, self.__repos)
             git.checkout(self.__repos, sha, source_path)
@@ -58,7 +58,7 @@ class RepositoryInfo:
             logging.exception("Exception %s while doing work", e)
             self.__setStatus("failure", sha)
             github.addComment(self.__repos, sha, "### TinyCI build failure:\n%s" % (e))
-        logging.info("Finished work for %s:%s", repos, sha)
+        logging.info("Finished work for %s:%s", self.__repos, sha)
 
     @property
     def status(self):
