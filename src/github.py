@@ -38,9 +38,14 @@ def _request(type, url, **kwargs):
 
 def getAllRepositories():
     result = []
-    for repo in _request("GET", "installation/repositories").json()["repositories"]:
-        result.append(repo["full_name"])
-    return result
+    page_nr = 0
+    while True:
+        page_nr += 1
+        repos = _request("GET", "installation/repositories?page=%d&per_page=100" % (page_nr)).json()["repositories"]
+        if len(repos) == 0:
+            return result
+        for repo in repos:
+            result.append(repo["full_name"])
 
 def getFileContents(repos, sha, filename):
     res = requests.get("https://raw.githubusercontent.com/%s/%s/%s" % (repos, sha, filename))
