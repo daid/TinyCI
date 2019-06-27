@@ -32,7 +32,9 @@ class TinyCIServer(flask.Flask):
         threading.Thread(target=self.__worker, daemon=True).start()
 
     def __home(self):
-        result = """<html><head><style>
+        result = """<html><head>
+            <script>document.addEventListener("visibilitychange", function(event) { if (!document.hidden) location.reload(); }, false);</script>
+            <style>
             .infobox { width: 200px; border: solid; text-align: center; float: left }
             .status_unknown { background-color: #A0A0A0 }
             .status_success { background-color: #40FF40 }
@@ -43,7 +45,7 @@ class TinyCIServer(flask.Flask):
             info = self.__repositories[repos]
             if info.has_config:
                 result += "<div class='infobox status_%s'>%s</div>" % (info.status, repos)
-        result += "<br/><br/>"
+        result += "<br/><br/><br/><br/><br/>"
         result += "%s jobs waiting" % (self.__work_queue.qsize())
         result += "</body></html>"
         return flask.Response(result)
