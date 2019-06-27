@@ -33,7 +33,7 @@ class TinyCIServer(flask.Flask):
 
     def __home(self):
         result = ""
-        for repos, info in self.__repositories:
+        for repos, info in self.__repositories.items():
             result = result + repos + ":" + info.status + "<br>"
         return flask.Response(result)
 
