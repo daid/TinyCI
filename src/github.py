@@ -52,7 +52,10 @@ def getFileContents(repos, sha, filename):
     res = _request("GET", "repos/%s/contents/%s?ref=%s" % (repos, filename, sha))
     if res.status_code == 404:
         return ""
-    return base64.b64decode(res.json()["content"]).decode("utf8-")
+    try:
+        return base64.b64decode(res.json()["content"]).decode("utf-8")
+    except:
+        return ""
 
 def updateStatus(repos, sha, status):
     res = _request("POST", "repos/%s/statuses/%s" % (repos, sha),
