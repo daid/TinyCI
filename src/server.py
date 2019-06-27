@@ -32,9 +32,18 @@ class TinyCIServer(flask.Flask):
         threading.Thread(target=self.__worker, daemon=True).start()
 
     def __home(self):
-        result = ""
-        for repos, info in self.__repositories.items():
-            result = result + repos + ":" + info.status + "<br>"
+        result = """<html><head><style>
+            .infobox { width: 200px; border: solid; text-align: center; float: left }
+            .status_unknown { background-color: #A0A0A0 }
+            .status_success { background-color: #40FF40 }
+            .status_failure { background-color: #FF4040 }
+            .status_pending { background-color: #FFFF40 }
+            </style></head><body>"""
+        for repos in sorted(self.__repositories):
+            info = self.__repositories[repos]
+            if info.has_config:
+                result += "<div class='infobox status_%s'>%s</div>" % (info.status, repos)
+        result += "</body></html>"
         return flask.Response(result)
 
     def __webhook(self):
