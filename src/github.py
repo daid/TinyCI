@@ -31,7 +31,7 @@ def _request(type, url, **kwargs):
     headers = {"Authorization": "Token %s" % (_token), "Accept": "application/vnd.github.machine-man-preview+json"}
     if "headers" in kwargs:
         headers.update(kwargs.pop("headers"))
-    result = requests.request(type, "https://api.github.com/%s" % (url), **kwargs, headers=headers)
+    result = requests.request(type, "https://api.github.com/%s" % (url), timeout=60, **kwargs, headers=headers)
     if result.status_code == 401:
         _token = None
         return _request(type, url, **kwargs)
