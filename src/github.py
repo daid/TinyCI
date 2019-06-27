@@ -1,6 +1,7 @@
 import config
 import requests
 import json
+import base64
 from cryptography.hazmat.backends import default_backend
 import jwt
 import time
@@ -48,10 +49,10 @@ def getAllRepositories():
             result.append(repo["full_name"])
 
 def getFileContents(repos, sha, filename):
-    res = requests.get("https://raw.githubusercontent.com/%s/%s/%s" % (repos, sha, filename))
+    res = _request("GET", "repos/%s/contents/%s?ref=%s" % (repos, filename, sha))
     if res.status_code == 404:
         return ""
-    return res.text
+    return base64.b64decode(res.json()["content"]).decode("utf8-")
 
 def updateStatus(repos, sha, status):
     res = _request("POST", "repos/%s/statuses/%s" % (repos, sha),
