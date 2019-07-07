@@ -77,10 +77,10 @@ class RepositoryInfo:
             source_path = os.path.join(config.build_root, self.__repos)
             git.checkout(self.__repos, tag, source_path)
             build.make(source_path)
-            config = configparser.ConfigParser()
-            config.read(os.path.join(source_path, ".tinycy"))
+            config_file = configparser.ConfigParser()
+            config_file.read(os.path.join(source_path, ".tinycy"))
             release_id = github.addRelease(self.__repos, tag)
-            for section_name, section in filter(lambda n: n[0].startswith("build-") or n[0] == "build", config.items()):
+            for section_name, section in filter(lambda n: n[0].startswith("build-") or n[0] == "build", config_file.items()):
                 for artifact in section["artifacts"].strip().split("\n"):
                     if os.path.isfile(os.path.join(source_path, artifact)):
                         github.addReleaseAsset(self.__repos, release_id, os.path.join(source_path, artifact))
