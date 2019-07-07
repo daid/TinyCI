@@ -84,6 +84,8 @@ class RepositoryInfo:
                 for artifact in section.get("artifacts", "").strip().split("\n"):
                     if os.path.isfile(os.path.join(source_path, artifact)):
                         github.addReleaseAsset(self.__repos, release_id, os.path.join(source_path, artifact))
+                    else:
+                        logging.warning("Missing artifact after release build: %s", artifact)
             github.publishRelease(self.__repos, release_id)
         except Exception as e:
             logging.exception("Exception %s while trying to release", e)
