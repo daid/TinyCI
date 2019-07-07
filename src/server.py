@@ -60,15 +60,23 @@ class TinyCIServer(flask.Flask):
             if not hmac.compare_digest(hmac.new(config.hook_secret.encode('utf-8'), flask.request.get_data(), hashlib.sha1).hexdigest(), hash_value):
                 flask.abort(400, "Invalid signature")
 
-        payload = flask.request.json
-        if not "commits" in payload:
-            return flask.Response("No commits")
+        event_type = flask.request.headers.get("X-GitHub-Event")
 
-        repos = payload["repository"]["full_name"]
-        for commit in payload["commits"]:
-            sha = commit["id"]
-            for r in self.__repositories.values():
-                r.onNewCommit(repos, sha)
+        payload = flask.request.json
+
+        if event_type == "push":
+            if not "commits" in payload:
+                return flask.Response("No commits")
+            repos = payload["repository"]["full_name"]
+            for commit in payload["commits"]:
+                sha = commit["id"]
+                for r in self.__repositories.values():
+                    r.onNewCommit(repos, sha)
+        elif event_type == "create":
+            repos = payload["repository"]["full_name"]
+            tag_name = payload["ref"]
+            if payload["ref_type"] == "tag":
+                self.__repositories[repos].onNewTag(tag_name)
         return flask.Response("OK")
 
     def __worker(self):

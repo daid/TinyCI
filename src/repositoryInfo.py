@@ -44,10 +44,19 @@ class RepositoryInfo:
         if self.__last_config is not None and self.__last_config.getboolean("repos-%s" % (repos), "required", fallback=False):
             self.triggerBuild("DEB")
 
+    def onNewTag(self, tag: str) -> None:
+        config = self.__getConfig(tag)
+        if config is not None:
+            self.triggerRelease(tag)
+
     def triggerBuild(self, origin: str) -> None:
         logging.info("[%s] Adding work for %s", origin, self.__repos)
         self.__setStatus("pending", self.__latest_commit_sha)
         self.__work_queue.put((self.build, self.__latest_commit_sha))
+
+    def triggerRelease(self, tag: str) -> None:
+        logging.info("[RELEASE] Adding work to release %s as %s", self.__repos, tag)
+        self.__work_queue.put((self.release, tag))
 
     def build(self, sha):
         logging.info("Doing work for %s:%s", self.__repos, sha)
@@ -61,6 +70,24 @@ class RepositoryInfo:
             self.__setStatus("failure", sha)
             github.addComment(self.__repos, sha, "### TinyCI build failure:\n%s" % (e))
         logging.info("Finished work for %s:%s", self.__repos, sha)
+
+    def release(self, tag):
+        logging.info("Doing to release %s:%s", self.__repos, tag)
+        try:
+            source_path = os.path.join(config.build_root, self.__repos)
+            git.checkout(self.__repos, tag, source_path)
+            build.make(source_path)
+            config = configparser.ConfigParser()
+            config.read(os.path.join(source_path, ".tinycy"))
+            release_id = github.addRelease(self.__repos, tag)
+            for section_name, section in filter(lambda n: n[0].startswith("build-") or n[0] == "build", config.items()):
+                for artifact in section["artifacts"].strip().split("\n"):
+                    if os.path.isfile(os.path.join(source_path, artifact)):
+                        github.addReleaseAsset(self.__repos, release_id, os.path.join(source_path, artifact))
+            github.publishRelease(self.__repos, release_id)
+        except Exception as e:
+            logging.exception("Exception %s while trying to release", e)
+        logging.info("Finished release for %s:%s", self.__repos, tag)
 
     @property
     def status(self):

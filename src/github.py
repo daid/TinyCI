@@ -2,6 +2,8 @@ import config
 import requests
 import json
 import base64
+import os
+import urllib.parse
 from cryptography.hazmat.backends import default_backend
 import jwt
 import time
@@ -24,14 +26,14 @@ def _getToken():
     global _token
     _token = resp.json()["token"]
 
-def _request(type, url, **kwargs):
+def _request(type, url, *, hostname="api.github.com", **kwargs):
     global _token
     if _token is None:
         _getToken()
     headers = {"Authorization": "Token %s" % (_token), "Accept": "application/vnd.github.machine-man-preview+json"}
     if "headers" in kwargs:
         headers.update(kwargs.pop("headers"))
-    result = requests.request(type, "https://api.github.com/%s" % (url), timeout=60, **kwargs, headers=headers)
+    result = requests.request(type, "https://%s/%s" % (hostname, url), timeout=60, **kwargs, headers=headers)
     if result.status_code == 401:
         _token = None
         return _request(type, url, **kwargs)
@@ -73,3 +75,18 @@ def getLatestSha(repos):
         headers={"Accept": "application/vnd.github.VERSION.sha"},
     )
     return reply.text
+
+def addRelease(repos, tag):
+    reply = _request("POST", "repos/%s/releases" % (repos), data=json.dumps({"tag_name": tag, "draft": True}))
+    return reply.json()["id"]
+
+def addReleaseAsset(repos, release_id, filename):
+    res = _request("POST", "repos/%s/releases/%s/assets?%s" % (repos, release_id, urllib.parse.urlencode({"name": os.path.basename(filename)})),
+        hostname="uploads.github.com",
+        data=open(filename, "rb").read(),
+        headers={"Content-Type": "application/octet-stream"})
+    return res
+
+def publishRelease(repos, release_id):
+    res = _request("PATCH", "repos/%s/releases/%s" % (repos, release_id), data=json.dumps({"draft": False}))
+    return res
