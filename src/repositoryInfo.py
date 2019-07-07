@@ -14,8 +14,8 @@ class RepositoryInfo:
         self.__work_queue = work_queue
         self.__latest_commit_sha = github.getLatestSha(repos)
         self.__status = "unknown"
-        if self.__getConfig() is not None:
-            self.triggerBuild("INIT")
+        #if self.__getConfig() is not None:
+        #    self.triggerBuild("INIT")
 
     def __getConfig(self, sha=None):
         sha = sha or self.__latest_commit_sha
@@ -81,7 +81,7 @@ class RepositoryInfo:
             config_file.read(os.path.join(source_path, ".tinycy"))
             release_id = github.addRelease(self.__repos, tag)
             for section_name, section in filter(lambda n: n[0].startswith("build-") or n[0] == "build", config_file.items()):
-                for artifact in section["artifacts"].strip().split("\n"):
+                for artifact in section.get("artifacts", "").strip().split("\n"):
                     if os.path.isfile(os.path.join(source_path, artifact)):
                         github.addReleaseAsset(self.__repos, release_id, os.path.join(source_path, artifact))
             github.publishRelease(self.__repos, release_id)
