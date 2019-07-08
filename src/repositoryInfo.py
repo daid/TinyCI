@@ -83,7 +83,8 @@ class RepositoryInfo:
             for section_name, section in filter(lambda n: n[0].startswith("build-") or n[0] == "build", config_file.items()):
                 for artifact in section.get("artifacts", "").strip().split("\n"):
                     if os.path.isfile(os.path.join(source_path, artifact)):
-                        github.addReleaseAsset(self.__repos, release_id, os.path.join(source_path, artifact))
+                        r = github.addReleaseAsset(self.__repos, release_id, os.path.join(source_path, artifact))
+                        logging.info("Added asset: %s", r.text)
                     else:
                         logging.warning("Missing artifact after release build: %s", artifact)
             github.publishRelease(self.__repos, release_id)
