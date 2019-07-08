@@ -78,7 +78,7 @@ class RepositoryInfo:
             git.checkout(self.__repos, tag, source_path)
             build.make(source_path)
             config_file = configparser.ConfigParser()
-            config_file.read(os.path.join(source_path, ".tinycy"))
+            config_file.read(os.path.join(source_path, ".tinyci"))
             release_id = github.addRelease(self.__repos, tag)
             for section_name, section in filter(lambda n: n[0].startswith("build-") or n[0] == "build", config_file.items()):
                 for artifact in section.get("artifacts", "").strip().split("\n"):
