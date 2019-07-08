@@ -21,5 +21,5 @@ def make(source_path: str) -> None:
             for command in section["commands"].strip().split("\n"):
                 run.cmd(shlex.split(command), cwd=build_path)
             for artifact in section.get("artifacts", "").strip().split("\n"):
-                if artifact != "" and not os.path.isfile(os.path.join(source_path, artifact)):
+                if artifact != "" and not os.path.isfile(os.path.join(build_path, artifact)):
                     raise ValueError("Missing artifact: [%s] after build" % (artifact))

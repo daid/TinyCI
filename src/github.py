@@ -80,8 +80,10 @@ def addRelease(repos, tag):
     reply = _request("POST", "repos/%s/releases" % (repos), data=json.dumps({"tag_name": tag, "draft": True}))
     return reply.json()["id"]
 
-def addReleaseAsset(repos, release_id, filename):
-    res = _request("POST", "repos/%s/releases/%s/assets?%s" % (repos, release_id, urllib.parse.urlencode({"name": os.path.basename(filename)})),
+def addReleaseAsset(repos, release_id, filename, *, name=None):
+    if name is None:
+        name = os.path.basename(filename)
+    res = _request("POST", "repos/%s/releases/%s/assets?%s" % (repos, release_id, urllib.parse.urlencode({"name": name})),
         hostname="uploads.github.com",
         data=open(filename, "rb").read(),
         headers={"Content-Type": "application/octet-stream"})
