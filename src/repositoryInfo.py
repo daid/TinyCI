@@ -84,10 +84,10 @@ class RepositoryInfo:
                 for artifact in section.get("artifacts", "").strip().split("\n"):
                     filename = os.path.join(source_path, section.get("directory", ""), artifact)
                     if os.path.isfile(filename):
+                        name = os.path.splitext(os.path.basename(artifact))
+                        name = "%s_%s%s" % (name[0], tag, name[1])
                         if len(section_name) > 6:
-                            name = "%s_%s" % (section_name[6:].capitalize(), os.path.basename(artifact))
-                        else:
-                            name = os.path.basename(artifact)
+                            name = "%s_%s" % (section_name[6:].capitalize(), name)
                         github.addReleaseAsset(self.__repos, release_id, filename, name=name)
                     else:
                         logging.warning("Missing artifact after release build: %s", artifact)
