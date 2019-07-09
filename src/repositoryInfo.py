@@ -29,7 +29,7 @@ class RepositoryInfo:
         return config
 
     def __setStatus(self, status: str, sha: str) -> None:
-        github.updateStatus(self.__repos, sha, "success")
+        github.updateStatus(self.__repos, sha, status)
         if self.__latest_commit_sha == sha:
             self.__status = status
 
