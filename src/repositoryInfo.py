@@ -89,7 +89,7 @@ class RepositoryInfo:
                         if len(section_name) > 6:
                             name = "%s_%s" % (section_name[6:].capitalize(), name)
                         github.addReleaseAsset(self.__repos, release_id, filename, name=name)
-                    else:
+                    elif filename != "":
                         logging.warning("Missing artifact after release build: %s", artifact)
             github.publishRelease(self.__repos, release_id)
         except Exception as e:
