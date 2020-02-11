@@ -1,4 +1,5 @@
 import subprocess
+import threading
 import logging
 
 log = logging.getLogger(__name__.split(".")[-1])
@@ -7,15 +8,38 @@ class RunException(Exception):
     def __init__(self, data):
         super().__init__()
         self.__data = data
-    
+
     def __str__(self):
         return self.__data
 
 
+class RunningProcess:
+    active = set()
+
+    def __init__(self, args, *, cwd):
+        log.info("Running: [%s] at [%s]", " ".join(args), cwd)
+        self.args = args
+        self.p = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.output = []
+        threading.Thread(target=self._communicate, args=(self.p.stdout,), daemon=True).start()
+        threading.Thread(target=self._communicate, args=(self.p.stderr,), daemon=True).start()
+        RunningProcess.active.add(self)
+
+    def _communicate(self, stream):
+        while True:
+            line = stream.readline()
+            if line != b'':
+                self.output.append(line.decode("utf-8", "replace"))
+            else:
+                return
+
+    def wait(self):
+        if self.p.wait() != 0:
+            RunningProcess.active.remove(self)
+            raise RunException("[%s] returned [%d]:\n```%s```" % (" ".join(self.args), self.p.returncode, "\n".join(self.output)))
+        RunningProcess.active.remove(self)
+        log.info("[%s] returned [%d]", " ".join(self.args), self.p.returncode)
+
 def cmd(args, *, cwd):
-    log.info("Running: [%s] at [%s]", " ".join(args), cwd)
-    p = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
-    if p.wait() != 0:
-        raise RunException("[%s] returned [%d]:\n```%s\n%s```" % (" ".join(args), p.returncode, stdout.decode('utf-8', 'replace'), stderr.decode('utf-8', 'replace')))
-    log.info("[%s] returned [%d]", " ".join(args), p.returncode)
+    rp = RunningProcess(args, cwd=cwd)
+    rp.wait()
