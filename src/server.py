@@ -16,6 +16,7 @@ import hmac
 import hashlib
 import build
 import repositoryInfo
+import run
 
 log = logging.getLogger(__name__.split(".")[-1])
 
@@ -47,7 +48,9 @@ class TinyCIServer(flask.Flask):
                 result += "<div class='infobox status_%s'>%s</div>" % (info.status, repos)
         result += "<br/><br/><br/><br/><br/>"
         result += "%s jobs waiting" % (self.__work_queue.qsize())
-        result += "</body></html>"
+        result += "<hr/><pre>"
+        result += "\n".join(run.getRunningData())
+        result += "</pre></body></html>"
         return flask.Response(result)
 
     def __webhook(self):

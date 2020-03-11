@@ -43,3 +43,10 @@ class RunningProcess:
 def cmd(args, *, cwd):
     rp = RunningProcess(args, cwd=cwd)
     rp.wait()
+
+def getRunningData():
+    output = []
+    for process in RunningProcess.active:
+        output += ["-------------------", " ".join(process.args)]
+        output += process.output
+    return output
