@@ -19,6 +19,7 @@ class RunningProcess:
     def __init__(self, args, *, cwd):
         log.info("Running: [%s] at [%s]", " ".join(args), cwd)
         self.args = args
+        self.cwd = cwd
         self.p = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.output = []
         threading.Thread(target=self._communicate, args=(self.p.stdout,), daemon=True).start()
@@ -47,6 +48,6 @@ def cmd(args, *, cwd):
 def getRunningData():
     output = []
     for process in RunningProcess.active:
-        output += ["-------------------", " ".join(process.args)]
+        output += ["%s> %s" % (process.cwd, " ".join(process.args))]
         output += process.output
     return output
