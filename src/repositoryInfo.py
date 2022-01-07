@@ -91,7 +91,7 @@ class RepositoryInfo:
                         github.addReleaseAsset(self.__repos, release_id, filename, name=name)
                     elif filename != "":
                         logging.warning("Missing artifact after release build: %s", artifact)
-            github.publishRelease(self.__repos, release_id)
+            github.publishRelease(self.__repos, release_id, tag.endswith("PR"))
         except Exception as e:
             logging.exception("Exception %s while trying to release", e)
         logging.info("Finished release for %s:%s", self.__repos, tag)

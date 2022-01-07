@@ -89,6 +89,6 @@ def addReleaseAsset(repos, release_id, filename, *, name=None):
         headers={"Content-Type": "application/octet-stream"})
     return res
 
-def publishRelease(repos, release_id):
-    res = _request("PATCH", "repos/%s/releases/%s" % (repos, release_id), data=json.dumps({"draft": False}))
+def publishRelease(repos, release_id, prerelease=False):
+    res = _request("PATCH", "repos/%s/releases/%s" % (repos, release_id), data=json.dumps({"draft": False, "prerelease": prerelease}))
     return res
