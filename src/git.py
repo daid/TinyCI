@@ -1,5 +1,6 @@
 import os
 import run
+import subprocess
 
 
 def checkout(repos, sha, source_path):
@@ -11,3 +12,9 @@ def checkout(repos, sha, source_path):
         run.cmd(["git", "fetch"], cwd=source_path)
         run.cmd(["git", "fetch", "--tags"], cwd=source_path)
     run.cmd(["git", "checkout", sha], cwd=source_path)
+
+
+def getbranch(source_path, sha):
+    r = subprocess.run(["git", "branch", "--format", "%(refname:lstrip=2)", "--contains", sha], cwd=source_path, capture_output=True)
+    print(r)
+    return r.stdout.decode("ascii").split("\n")[0].strip()

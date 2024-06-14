@@ -63,6 +63,8 @@ class RepositoryInfo:
         try:
             source_path = os.path.join(config.build_root, self.__repos)
             git.checkout(self.__repos, sha, source_path)
+            branch = git.getbranch(source_path, sha)
+            logging.info("On branch: %s", branch)
             build.make(source_path)
             self.__setStatus("success", sha)
         except Exception as e:
@@ -89,7 +91,7 @@ class RepositoryInfo:
                         if len(section_name) > 6:
                             name = "%s_%s" % (section_name[6:].capitalize(), name)
                         github.addReleaseAsset(self.__repos, release_id, filename, name=name)
-                    elif filename != "":
+                    elif artifact != "":
                         logging.warning("Missing artifact after release build: %s", artifact)
             github.publishRelease(self.__repos, release_id, tag.endswith("PR"))
         except Exception as e:

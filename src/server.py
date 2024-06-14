@@ -66,6 +66,7 @@ class TinyCIServer(flask.Flask):
         event_type = flask.request.headers.get("X-GitHub-Event")
 
         payload = flask.request.json
+        log.info("Webhook: {}: {}", event_type, payload)
 
         if event_type == "push":
             if not "commits" in payload:

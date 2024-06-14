@@ -19,9 +19,9 @@ def _getToken():
         'iss': config.github_app_id,
     }
     actual_jwt = jwt.encode(payload, private_key, algorithm='RS256')
-    headers = {"Authorization": "Bearer {}".format(actual_jwt.decode()),
+    headers = {"Authorization": "Bearer {}".format(actual_jwt),
                "Accept": "application/vnd.github.machine-man-preview+json"}
-    resp = requests.post('https://api.github.com/installations/%s/access_tokens' % (config.github_install_id),
+    resp = requests.post('https://api.github.com/app/installations/%s/access_tokens' % (config.github_install_id),
                      headers=headers)
     global _token
     _token = resp.json()["token"]
