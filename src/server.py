@@ -49,7 +49,7 @@ class TinyCIServer(flask.Flask):
         result += "<br/><br/><br/><br/><br/>"
         result += "%s jobs waiting" % (self.__work_queue.qsize())
         result += "<hr/><pre>"
-        result += "\n".join(run.getRunningData())
+        result += "".join(run.getRunningData())
         result += "</pre></body></html>"
         return flask.Response(result)
 

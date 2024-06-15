@@ -37,7 +37,7 @@ class RunningProcess:
     def wait(self):
         if self.p.wait() != 0:
             RunningProcess.active.remove(self)
-            raise RunException("[%s] returned [%d]:\n```%s```" % (" ".join(self.args), self.p.returncode, "\n".join(self.output)))
+            raise RunException("[%s:%s] returned [%d]:\n```%s```" % (self.cwd, " ".join(self.args), self.p.returncode, "\n".join(self.output)))
         RunningProcess.active.remove(self)
         log.info("[%s] returned [%d]", " ".join(self.args), self.p.returncode)
 

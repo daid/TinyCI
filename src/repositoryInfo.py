@@ -14,6 +14,7 @@ class RepositoryInfo:
         self.__work_queue = work_queue
         self.__latest_commit_sha = github.getLatestSha(repos)
         self.__status = "unknown"
+        self.__last_config = None
         if self.__getConfig() is not None:
             self.triggerBuild("INIT")
 
