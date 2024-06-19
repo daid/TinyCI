@@ -66,7 +66,7 @@ class TinyCIServer(flask.Flask):
         event_type = flask.request.headers.get("X-GitHub-Event")
 
         payload = flask.request.json
-        log.info("Webhook: {}: {}", event_type, payload)
+        log.info("Webhook: %s: %s", event_type, payload)
 
         if event_type == "push":
             if not "commits" in payload:
@@ -90,7 +90,10 @@ class TinyCIServer(flask.Flask):
         log.info("Work queue started")
         while True:
             build_function, sha = self.__work_queue.get()
-            build_function(sha)
+            try:
+                build_function(sha)
+            except:
+                log.exception("Exception in build_function")
 
     def run(self):
         if stat.S_ISSOCK(os.fstat(0).st_mode):
